@@ -1,0 +1,188 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class SimpleBoxGame extends JPanel implements KeyListener, ActionListener {
+    private final int BOX_SIZE = 50;
+
+    // Player 1 (WASD + X)
+    private int p1x = 100, p1y = 200;
+    private double p1Angle = -90; // Up
+    private boolean p1Increasing = true; // sway down
+
+    // Player 2 (Arrow keys + M)
+    private int p2x = 350, p2y = 200;
+    private double p2Angle = -90;
+    private boolean p2Increasing = true;
+
+    // Obstacle
+    private final Rectangle obstacle = new Rectangle(230, 150, 100, 100);
+
+    // Bullet class
+    private static class Bullet {
+        double x, y, dx, dy;
+        final int SIZE = 10;
+        Color color;
+
+        Bullet(double x, double y, double dx, double dy, Color color){
+            this.x = x; this.y = y;
+            this.dx = dx; this.dy = dy;
+            this.color = color;
+        }
+
+        void move(){ x += dx; y += dy; }
+
+        Rectangle getBounds(){ return new Rectangle((int)x, (int)y, SIZE, SIZE); }
+    }
+
+    private final List<Bullet> bullets = new ArrayList<>();
+    private final Timer timer = new Timer(30, this);
+
+    public SimpleBoxGame(){
+        setPreferredSize(new Dimension(500,500));
+        setBackground(Color.BLACK);
+        setFocusable(true);
+        addKeyListener(this);
+        timer.start();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        // Obstacle
+        g.setColor(Color.RED);
+        g.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+        // Bullets
+        for(Bullet b: bullets){
+            g.setColor(b.color);
+            g.fillOval((int)b.x, (int)b.y, b.SIZE, b.SIZE);
+        }
+
+        // Players
+        g.setColor(Color.GREEN);
+        g.fillRect(p1x, p1y, BOX_SIZE, BOX_SIZE);
+        g.setColor(Color.CYAN);
+        g.fillRect(p2x, p2y, BOX_SIZE, BOX_SIZE);
+
+        // Draw arrow meters **right side of player**
+        drawArrow(g, p1x + BOX_SIZE, p1y + BOX_SIZE/2, p1Angle, Color.YELLOW);
+        drawArrow(g, p2x + BOX_SIZE, p2y + BOX_SIZE/2, p2Angle, Color.ORANGE);
+
+        // Scores
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        g.drawString("P1 Score", 20,30);
+        g.drawString("P2 Score", 350,30);
+    }
+
+    private void drawArrow(Graphics g, int cx, int cy, double angle, Color color){
+        g.setColor(color);
+        int arrowLength = 50;
+        double rad = Math.toRadians(angle);
+        int dx = (int)(Math.cos(rad) * arrowLength);   // horizontal
+        int dy = (int)(Math.sin(rad) * arrowLength);   // vertical
+        g.drawLine(cx, cy, cx + dx, cy + dy);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e){
+        int key = e.getKeyCode();
+
+        // Player 1 movement
+        int newP1X = p1x, newP1Y = p1y;
+        switch(key){
+            case KeyEvent.VK_W -> newP1Y -= 10;
+            case KeyEvent.VK_S -> newP1Y += 10;
+            case KeyEvent.VK_A -> newP1X -= 10;
+            case KeyEvent.VK_D -> newP1X += 10;
+            case KeyEvent.VK_X -> shootArrow(p1x + BOX_SIZE, p1y + BOX_SIZE/2, p1Angle, Color.YELLOW);
+        }
+
+        // Player 2 movement
+        int newP2X = p2x, newP2Y = p2y;
+        switch(key){
+            case KeyEvent.VK_UP -> newP2Y -= 10;
+            case KeyEvent.VK_DOWN -> newP2Y += 10;
+            case KeyEvent.VK_LEFT -> newP2X -= 10;
+            case KeyEvent.VK_RIGHT -> newP2X += 10;
+            case KeyEvent.VK_M -> shootArrow(p2x + BOX_SIZE, p2y + BOX_SIZE/2, p2Angle, Color.ORANGE);
+        }
+
+        // Obstacle collision
+        if(!new Rectangle(newP1X,newP1Y,BOX_SIZE,BOX_SIZE).intersects(obstacle)){ p1x=newP1X; p1y=newP1Y; }
+        if(!new Rectangle(newP2X,newP2Y,BOX_SIZE,BOX_SIZE).intersects(obstacle)){ p2x=newP2X; p2y=newP2Y; }
+
+        // Window bounds
+        p1x = Math.max(0, Math.min(p1x, getWidth()-BOX_SIZE));
+        p1y = Math.max(0, Math.min(p1y, getHeight()-BOX_SIZE));
+        p2x = Math.max(0, Math.min(p2x, getWidth()-BOX_SIZE));
+        p2y = Math.max(0, Math.min(p2y, getHeight()-BOX_SIZE));
+
+        repaint();
+    }
+
+    private void shootArrow(int cx, int cy, double angle, Color color){
+        double speed = 10;
+        double rad = Math.toRadians(angle);
+        double dx = Math.cos(rad) * speed;
+        double dy = Math.sin(rad) * speed;
+        bullets.add(new Bullet(cx - 5, cy - 5, dx, dy, color));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e){
+        // Arrow sway **up and down vertically** on right side
+        if(p1Increasing){
+            p1Angle += 2;
+            if(p1Angle >= 90) p1Increasing = false;
+        } else {
+            p1Angle -= 2;
+            if(p1Angle <= -90) p1Increasing = true;
+        }
+
+        if(p2Increasing){
+            p2Angle += 2;
+            if(p2Angle >= 90) p2Increasing = false;
+        } else {
+            p2Angle -= 2;
+            if(p2Angle <= -90) p2Increasing = true;
+        }
+
+        // Move bullets
+        Rectangle player2Bounds = new Rectangle(p2x, p2y, BOX_SIZE, BOX_SIZE);
+        Iterator<Bullet> it = bullets.iterator();
+        while(it.hasNext()){
+            Bullet b = it.next();
+            b.move();
+
+            // Player2 blocks Player1 bullets
+            if(b.color == Color.YELLOW && b.getBounds().intersects(player2Bounds)){ it.remove(); continue; }
+
+            // Bullet hits obstacle
+            if(b.getBounds().intersects(obstacle)){ it.remove(); continue; }
+
+            // Out of bounds
+            if(b.x < 0 || b.y < 0 || b.x > getWidth() || b.y > getHeight()) it.remove();
+        }
+
+        repaint();
+    }
+
+    @Override public void keyReleased(KeyEvent e){}
+    @Override public void keyTyped(KeyEvent e){}
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame("Simple Box Game - Right Side Up/Down Arrow");
+        SimpleBoxGame game = new SimpleBoxGame();
+        frame.add(game);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}
