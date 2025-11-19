@@ -4,7 +4,7 @@ import java.awt.*;
 
 public abstract class StaticEntity {
     double x, y, dx, dy;
-    int size;
+    int width, height;
     Color color;
 
     public Color getColor() {
@@ -19,8 +19,12 @@ public abstract class StaticEntity {
         return this.y;
     }
 
-    public int getSize() {
-        return this.size;
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
 }

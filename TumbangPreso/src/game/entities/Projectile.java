@@ -5,7 +5,8 @@ import java.awt.*;
 public class Projectile extends MovingEntity {
 
     int SIZE = 10;
-    int speed = 10;
+    int xSpeed = 10;
+    int ySpeed = 10;
 
     public Projectile(double x,double y, Color color) {
         this.x = x;
@@ -20,16 +21,16 @@ public class Projectile extends MovingEntity {
     @Override
     public void moveX(boolean right) {
         if (right)
-            x += speed;
+            x += xSpeed;
         else
-            x -= speed;
+            x -= xSpeed;
     }
     @Override
     public void moveY(boolean up) {
         if (up)
-            y -= speed;
+            y -= ySpeed;
         else
-            y += speed;
+            y += ySpeed;
     }
 
 }

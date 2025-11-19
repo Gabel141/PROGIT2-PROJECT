@@ -1,11 +1,10 @@
 package game.entities;
 
-public class Attacker extends MovingEntity {
+public class Defender extends MovingEntity {
 
     int playerSpeed;
-    int playerCooldown;
 
-    public Attacker(double x, double y, int h, int w, int playerSpeed) {
+    public Defender(double x, double y, int h, int w, int playerSpeed) {
         this.x = x;
         this.y = y;
         this.width = w;
@@ -15,14 +14,6 @@ public class Attacker extends MovingEntity {
 
     public int getPlayerSpeed() {
         return playerSpeed;
-    }
-
-    public int getCooldown() {
-        return playerCooldown;
-    }
-
-    public void setPlayerCooldown(int cd) {
-        playerCooldown = cd;
     }
 
     @Override
@@ -39,4 +30,6 @@ public class Attacker extends MovingEntity {
         else
             y += playerSpeed;
     }
+
+
 }
