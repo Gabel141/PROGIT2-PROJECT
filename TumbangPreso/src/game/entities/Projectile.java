@@ -2,16 +2,17 @@ package game.entities;
 
 import java.awt.*;
 
+import game.utils.Directions;
+
 public class Projectile extends MovingEntity {
 
     int SIZE = 10;
     int xSpeed = 10;
     int ySpeed = 10;
 
-    public Projectile(double x,double y, Color color) {
+    public Projectile(int x, int y, Color color) {
         this.x = x;
         this.y = y;
-        this.color = color;
     }
 
     Rectangle getBounds() {
@@ -31,6 +32,11 @@ public class Projectile extends MovingEntity {
             y -= ySpeed;
         else
             y += ySpeed;
+    }
+
+    @Override
+    public Directions getFacing() {
+        return facing;
     }
 
 }

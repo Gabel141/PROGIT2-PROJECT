@@ -1,21 +1,20 @@
 package game.entities;
 
-import java.awt.*;
+import framework.render.Model;
 
-public abstract class StaticEntity {
-    double x, y, dx, dy;
-    int width, height;
-    Color color;
+public class StaticEntity {
 
-    public Color getColor() {
-        return this.color;
-    }
+    private Model model;
 
-    public double getX() {
+    protected int x, y;
+    protected int width, height;
+
+
+    public int getX() {
         return this.x;
     }
 
-    public double getY() {
+    public int getY() {
         return this.y;
     }
 
@@ -25,6 +24,14 @@ public abstract class StaticEntity {
 
     public int getHeight() {
         return height;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 
 }

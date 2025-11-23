@@ -1,31 +1,29 @@
 package game;
 
-import framework.render.GameScreen;
-import game.entities.Projectile;
+import framework.DisplayManager;
+import framework.GameLoop;
+import framework.gamestates.GameStateManager;
+import framework.render.ModelManager;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Game {
 
+
+    private static GameStateManager stateManager;
+
+
     public static void main(String[] args) {
 
-
-        System.out.println("[RENDER][DisplayManager]: Creating Window...");
-        JFrame window = new JFrame("Tumbang Preso");
-        GameScreen gameScreen = new GameScreen();
-
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.add(gameScreen);
-        window.pack();
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-
-        //DisplayManager.createDisplay();
-
-        gameScreen.startGameThread();
+        GameLoop loop = new GameLoop();
+        loop.startGameThread();
+        stateManager = new GameStateManager();
+        ModelManager.init();
+        DisplayManager.createDisplay();
 
     }
+
+    public static GameStateManager getStateManager() {
+        return stateManager;
+    }
+
 }
